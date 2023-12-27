@@ -1,27 +1,54 @@
-const Clarifai = require('clarifai');
+const User = require('../model/User');
 
-const app = new Clarifai.App({
-  apiKey: 'd8fcb3e06f454cd1a588f24eb808e8f9'
-});
+const handleApiCall = async (req, res) => {
 
-const handleApiCall =(req,res)=>{
-	app.models
-	.predict(Clarifai.FACE_DETECT_MODEL,req.body.input)
-	.then(data =>{
-		res.json(data);
-	})
-	.catch(err=>res.status(400).json('unable to work with api'))
+	const url = process.env.CLARIFAI_API_URL;
+	const key = process.env.CLARIFAI_API_KEY;
+
+	const options = {
+		method: 'post',
+		headers: {
+			'Authorization': `Key ${key}`,
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({
+			'inputs': [
+				{
+					'data': {
+						'image': {
+							'url': req.body.input
+						}
+					}
+				}
+			]
+		})
+	};
+
+	await fetch(url, options)
+            .then(response => response.json())
+            .then(jsonData => {
+				res.json(jsonData)
+			})
+			.catch(err=>res.status(400).json('unable to work with api'));
 }
 
-const handleImage=(req,res,db)=>{
+const handleImage=(req, res) => {
 	const {id} =req.body;
-	db('users').where('id','=',id)
-	.increment('entries',1)
-	.returning('entries')
-	.then(entries=>{
-		res.json(entries[0]);
+
+	User.findById(id).then((user) => {
+
+		if(user) {
+			User.updateOne({_id: id}, {entries: ++user.entries}).then(() => {
+                res.send({entries: user.entries});
+            }).catch((err) => {
+                console.log(err);
+            })
+		}else {
+			res.status(400).json('unable to get entrie');
+		}
+	}).catch((err) => {
+		res.status(400).json('unable to get entrie')
 	})
-	.catch(err => res.status(400).json('unable to get entries'))
 }
 
 module.exports={
