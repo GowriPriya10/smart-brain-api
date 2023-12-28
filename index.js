@@ -31,3 +31,5 @@ app.get('/profile/:id', profile.handleProfile);
 app.put('/image', image.handleImage);
 
 app.post('/imageUrl', image.handleApiCall);
+
+app.put('/editpassword', profile.changePassword);
