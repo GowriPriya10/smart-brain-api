@@ -30,10 +30,10 @@ const changePassword = async (req, res) => {
                 console.log(err);
             })
 		}else {
-			res.status(400).json('unable to get change password');
+			res.status(400).json('Sorry, Something went worng. Unable to change password.');
 		}
 	}).catch((err) => {
-		res.status(400).json('unable to get change password')
+		res.status(400).json('Sorry, Something went worng. Unable to change password')
 	})
 }
 
